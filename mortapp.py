@@ -237,12 +237,7 @@ with st.spinner("Calculating..."):
     # Display Output in main window
     st.metric(label="Required Monthly Payment ", value=f"£{exact_payment:,.2f}")
 
-    st.divider()
-
-    st.subheader("Mortgage Balance over Time")
-    chart_data = df[df['Event'].isin(['Initial Advance', 'Monthly Payment', 'First Payment'])][['Date', 'Closing Balance']].copy()
-    chart_data.set_index('Date', inplace=True)
-    st.line_chart(chart_data)
+    
 
     st.divider()
 
@@ -267,3 +262,10 @@ with st.spinner("Calculating..."):
                         "Amount": st.column_config.TextColumn("Amount", alignment="right"),          # Right-aligned
                         "Closing Balance": st.column_config.TextColumn("Closing Balance", alignment="right") # Right-aligned
                 })
+
+    st.divider()
+    
+    st.subheader("Mortgage Balance over Time")
+    chart_data = df[df['Event'].isin(['Initial Advance', 'Monthly Payment', 'First Payment'])][['Date', 'Closing Balance']].copy()
+    chart_data.set_index('Date', inplace=True)
+    st.line_chart(chart_data)
