@@ -233,10 +233,16 @@ with st.spinner("Calculating..."):
 
     statement = mortgage.simulate_mortgage(exact_payment, generate_statement=True)
     df = pd.DataFrame(statement)
-
+    total_interest_paid = sum(
+        row['Amount'] for row in statement 
+        if row['Event'] in ['Capitalisation', 'Final Interest Accrual', 'Final Interest Payment'] or 'Interest' in row['Event']
+    )
     # Display Output in main window
-    st.metric(label="Required Monthly Payment ", value=f"£{exact_payment:,.2f}")
-
+    col_Pay, col_int = st.columns(2)
+    with col_Pay:
+        st.metric(label="Required Monthly Payment ", value=f"£{exact_payment:,.2f}")
+    with col_int:
+        st.metric(label="Total Interest Paid", value=f"£{total_interest_paid:,.2f}")
     
 
     st.divider()
