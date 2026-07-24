@@ -139,9 +139,16 @@ class Mortgage:
             #accumulate stub interest on inital month
             if current_date <= self.end_of_start_month:
                 stub_interest_accrued += daily_interest
-
+            if current_date == self.end_date:
+                if accrued_interest > 0:
+                            balance += accrued_interest
+                            log_transaction("Final Interest Accrual", accrued_interest)
+                            accrued_interest = 0.0
+            
             #advance to next day
             current_date += datetime.timedelta(days=1)
+
+            
         return balance if not generate_statement else statement
 
     def calculate_monthly_payment(self):
@@ -153,13 +160,16 @@ class Mortgage:
 
         r = self.annual_rate / 12
         n = self.actual_term_months
-        if r > 0:
-            standard_pmt = self.principal * r / (1-(1+r)**(-n))
+        if n > 0:
+            if r > 0:
+                standard_pmt = self.principal * r / (1-(1+r)**(-n))
+            else:
+                standard_pmt = self.principal /n 
+            low = standard_pmt * 0.5
+            high = standard_pmt * 2.0
         else:
-            standard_pmt = self.principal /n 
-        low = standard_pmt * 0.5
-        high = standard_pmt * 2.0
-
+            high = self.principal
+            low = 0.01
         while (high - low) > 0.001:
             mid = (low + high) / 2.0
             final_balance = self.simulate_mortgage(mid)
@@ -225,7 +235,7 @@ with st.spinner("Calculating..."):
     df = pd.DataFrame(statement)
 
     # Display Output in main window
-    st.metric(label="Required Monthly Payment (£)", value=f"{exact_payment:,.2f}")
+    st.metric(label="Required Monthly Payment ", value=f"£{exact_payment:,.2f}")
 
     st.divider()
 
